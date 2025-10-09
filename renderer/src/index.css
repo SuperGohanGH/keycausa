@@ -1,0 +1,115 @@
+/* Reset completo - Elimina margini y padding del navegador */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Estilos globales */
+html {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: none;
+  background: linear-gradient(180deg, rgba(12,12,12,1) 0%, rgba(15,15,20,1) 100%), url('./assets/fondo.png') no-repeat center/cover;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: none;
+}
+
+/* Nascondere scrollbar per tutti gli elementi */
+::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+  background: transparent !important;
+}
+
+* {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+  box-sizing: border-box;
+}
+
+/* Rimuovi il blocco globale della selezione del testo */
+* {
+  /* Rimuovi queste righe che bloccano tutto */
+  /* -webkit-user-select: none; */
+  /* -moz-user-select: none; */
+  /* -ms-user-select: none; */
+  /* user-select: none; */
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Blocca solo gli elementi specifici che non vuoi selezionabili */
+.pw-card,
+.pw-header,
+.pw-actions,
+.login-card,
+.setup-card,
+.manage-card {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Permetti sempre la selezione negli input */
+input,
+textarea,
+select,
+.login-input,
+.setup-input,
+.manage-input {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  pointer-events: auto !important;
+}
+
+/* Contenedor responsive */
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* ocupa todo el alto */
+  padding: 2rem;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+/* Ejemplo de media query */
+@media (min-width: 1920px) {
+  h1 {
+    font-size: 3rem;
+  }
+}

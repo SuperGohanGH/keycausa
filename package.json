@@ -1,0 +1,56 @@
+{
+  "name": "keycausa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:renderer": "cd renderer && npm run build",
+    "postinstall": "electron-builder install-app-deps",
+    "dist": "npm run build:renderer && electron-builder"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "crypto-js": "^4.2.0",
+    "node-fetch": "^2.7.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "electron": "^38.1.2",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.keycausa.app",
+    "productName": "KeyCausa",
+    "directories": {
+      "output": "release",
+      "buildResources": "assets"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/dist/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "assets/**/*"
+    ],
+    "win": {
+      "icon": "assets/logo512.png",
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "mac": {
+      "icon": "assets/logo512.png"
+    },
+    "linux": {
+      "icon": "assets/logo512.png"
+    }
+  }
+}
