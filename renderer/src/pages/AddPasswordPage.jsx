@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import IconPickerModal from "../components/IconPickerModal";
 import "./AddPasswordPage.css";
+import defaultAppLogo from "../assets/logo512.png";
 
 export default function AddPasswordPage() {
   const nav = useNavigate();
@@ -23,8 +24,30 @@ export default function AddPasswordPage() {
     e.preventDefault();
     setErr("");
 
+    // Preparar datos para enviar
+    const dataToSave = { ...form };
+
+    // Si no se eligió icono, usar el logo de la app por defecto
+    if (!dataToSave.iconPath) {
+      try {
+        // Convertir la imagen por defecto a base64 porque el backend lo requiere
+        const response = await fetch(defaultAppLogo);
+        const blob = await response.blob();
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        dataToSave.iconPath = base64;
+      } catch (error) {
+        console.error("Error cargando logo por defecto:", error);
+        // Fallback a un pixel transparente o similar si falla, para no romper la app
+        dataToSave.iconPath = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+      }
+    }
+
     try {
-      await window.api.pwAdd(form);
+      await window.api.pwAdd(dataToSave);
       nav("/passwords");
     } catch (e2) {
       setErr(String(e2));
