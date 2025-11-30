@@ -13,7 +13,8 @@
 
 /* Recuadro centrado */
 .login-card {
-  background: rgba(0, 0, 0, 0.632); /* negro con transparencia */
+  background: rgba(0, 0, 0, 0.632);
+  /* negro con transparencia */
   padding: 2rem;
   border-radius: 16px;
   width: 400px;
@@ -64,6 +65,7 @@
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
+
 .login-verse-ref {
   margin-top: 0px;
   font-size: 0.9rem;
@@ -71,6 +73,7 @@
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
+
 /* Formulario */
 .login-form {
   display: flex;
@@ -97,7 +100,7 @@
 }
 
 .login-input:focus {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7); 
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
 }
 
 /* Botón */
@@ -120,8 +123,32 @@
 
 /* Error */
 .error {
-  margin-top: 1rem;
-  color: #ff6b6b;
-  font-weight: bold;
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #8B0000, #FF0000);
+  color: #FFFFFF;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  animation: slideUpFade 0.3s ease-out forwards;
+  text-align: center;
+  min-width: 200px;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }

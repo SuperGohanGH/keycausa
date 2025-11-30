@@ -7,7 +7,7 @@
   border-radius: 16px;
   padding: 16px 24px;
   transition: transform .15s ease, box-shadow .15s ease, border-color .2s ease;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.25), 0 10px 30px rgba(0,0,0,.35);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .25), 0 10px 30px rgba(0, 0, 0, .35);
   box-sizing: border-box;
   min-height: 92px;
   max-height: 92px;
@@ -15,7 +15,7 @@
 
 .copy-button-wrapper:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0,0,0,.45), 0 0 0 3px rgba(139,0,0,.25);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .45), 0 0 0 3px rgba(139, 0, 0, .25);
   border-color: #2f3540;
 }
 
@@ -107,30 +107,84 @@
   text-align: left;
   min-width: 0;
   overflow: hidden;
-  /* Reserve space on the right so the delete button never overlaps the text */
-  padding-right: 64px; /* delete button width (40px) + margins */
+  padding-right: 64px;
+  /* Espacio para el botón de eliminar */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
+/* Wrapper para controlar el overflow y la máscara */
+.text-scroll-wrapper {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+}
+
+/* El contenedor interno que se moverá */
+.scroll-inner {
+  display: inline-block;
+  white-space: nowrap;
+  transition: transform 0.3s ease-out;
+  /* Retorno suave */
+}
+
+/* Animación al hacer hover en la CARD completa */
+.copy-button-wrapper:hover .scroll-inner {
+  /* 
+     Usamos una animación que mueve el texto a la izquierda y luego regresa.
+     translateX(-50%) asume que el texto es largo. 
+     Para hacerlo perfecto sin JS, usamos un valor seguro o 'min-content'.
+     
+     Truco: Si el texto es corto, la animación igual corre pero no se nota mucho si el contenedor es ancho.
+     Si el texto es largo, se verá el desplazamiento.
+  */
+  animation: scroll-horizontal 4s linear infinite;
+  animation-delay: 0.5s;
+  /* Pequeña pausa antes de empezar */
+}
+
+@keyframes scroll-horizontal {
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(0);
+  }
+
+  /* Pausa inicial para leer */
+  75% {
+    transform: translateX(calc(-100% + 150px));
+  }
+
+  /* Mueve hasta el final (aprox ancho visible) */
+  100% {
+    transform: translateX(0);
+  }
+
+  /* Vuelve rápido o suave */
+}
+
+/* Ajuste específico para service-name */
 .service-name {
   font-size: 24px;
   font-weight: bold;
   color: #e8ecf1;
   margin: 0 0 4px 0;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  /* Quitamos overflow:hidden de aquí porque lo maneja el wrapper */
 }
 
+/* Ajuste específico para email-text */
 .email-text {
   font-size: 16px;
   color: #9aa3ad;
   margin: 0;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* Ensure the email doesn't expand the card; cap visible chars roughly */
-  max-width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 

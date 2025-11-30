@@ -10,12 +10,18 @@ const CopyButton = ({
   onDelete,                // 👈 nueva prop para eliminar
 }) => {
   const [showFeedback, setShowFeedback] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
 
   // Truncate email/username to first 8 chars + ***
   const truncateEmail = (text) => {
     if (!text) return "";
     if (text.length <= 8) return text;
     return text.substring(0, 8) + "***";
+  };
+
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    setIsRevealed(!isRevealed);
   };
 
   const handleCopy = async () => {
@@ -48,26 +54,41 @@ const CopyButton = ({
   return (
     <>
       <div className="copy-button-wrapper">
-        <button className="copy-button" onClick={handleCopy}>
+        <button
+          className="copy-button"
+          onClick={handleCopy}
+          onContextMenu={handleContextMenu}
+          title="Click izquierdo para copiar, Click derecho para ver usuario"
+        >
           <div className="avatar-container">
-            <img 
-              src={iconPath || '/default-icon.svg'} 
+            <img
+              src={iconPath || '/default-icon.svg'}
               alt={serviceName}
               className="avatar-icon"
-              onError={(e) => { 
-                e.currentTarget.src = '/default-icon.svg'; 
+              onError={(e) => {
+                e.currentTarget.src = '/default-icon.svg';
               }}
             />
           </div>
           <div className="button-content">
-            <h3 className="service-name">{serviceName}</h3>
-            <p className="email-text">{truncateEmail(email)}</p>
+            <div className="text-scroll-wrapper">
+              <h3 className="service-name">
+                <span className="scroll-inner">{serviceName}</span>
+              </h3>
+            </div>
+            <div className="text-scroll-wrapper">
+              <p className="email-text">
+                <span className="scroll-inner">
+                  {isRevealed ? email : truncateEmail(email)}
+                </span>
+              </p>
+            </div>
           </div>
         </button>
-        
+
         {onDelete && (
-          <button 
-            className="delete-password-btn" 
+          <button
+            className="delete-password-btn"
             onClick={handleDelete}
             title="Eliminar contraseña"
           >

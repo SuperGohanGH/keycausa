@@ -1,0 +1,146 @@
+.icon-picker-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.icon-picker-modal {
+    background: #14171c;
+    border: 1px solid #242834;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.icon-picker-header {
+    padding: 20px;
+    border-bottom: 1px solid #242834;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.icon-picker-header h2 {
+    margin: 0;
+    color: #e8ecf1;
+    font-size: 1.2rem;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: #9aa3ad;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: #fff;
+}
+
+.icon-picker-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.upload-section {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.upload-btn-large {
+    background: linear-gradient(90deg, #242834, #1f232d);
+    border: 1px dashed #3a4150;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    color: #e8ecf1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-btn-large:hover {
+    border-color: #8B0000;
+    background: rgba(139, 0, 0, 0.05);
+}
+
+.upload-icon {
+    font-size: 24px;
+}
+
+.default-logos-section h3 {
+    color: #9aa3ad;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.logos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 12px;
+}
+
+.logo-item {
+    aspect-ratio: 1;
+    background: #1f232d;
+    border: 1px solid #242834;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-item:hover {
+    border-color: #8B0000;
+    transform: translateY(-2px);
+}
+
+.logo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.no-logos-msg {
+    text-align: center;
+    color: #5c6370;
+    padding: 20px;
+    font-style: italic;
+}
