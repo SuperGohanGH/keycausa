@@ -8,11 +8,15 @@ contextBridge.exposeInMainWorld("api", {
   questionsCount: () => ipcRenderer.invoke("questions:count"),
   questionsList: () => ipcRenderer.invoke("questions:list"),
   questionsAdd: (data) => ipcRenderer.invoke("questions:add", data),
-  questionsDelete: (question) => ipcRenderer.invoke("questions:delete", question),
+  questionsDelete: (question) =>
+    ipcRenderer.invoke("questions:delete", question),
   // gestión de contraseñas
   pwList: (query) => ipcRenderer.invoke("pw:list", { query }),
   pwGet: (id) => ipcRenderer.invoke("pw:get", id),
   pwAdd: (payload) => ipcRenderer.invoke("pw:add", payload),
   pwUpdate: (payload) => ipcRenderer.invoke("pw:update", payload),
   pwDelete: (id) => ipcRenderer.invoke("pw:delete", id),
+  // backup
+  backupExport: () => ipcRenderer.invoke("backup:export"),
+  backupImport: () => ipcRenderer.invoke("backup:import"),
 });

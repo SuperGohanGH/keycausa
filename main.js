@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const fetch = require("node-fetch"); // v2
 const fs = require("fs");
@@ -8,7 +8,6 @@ const crypto = require("crypto");
 
 const VAULT_DB = path.join(app.getPath("userData"), "vault.db");
 const KEY_FILE = path.join(app.getPath("userData"), "vault.key"); // clave simétrica del cofre
-
 
 // ----- preguntas protegidas -----
 const QUESTIONS_FILE = path.join(app.getPath("userData"), "questions.enc");
@@ -111,21 +110,24 @@ ipcMain.handle("questions:count", () => {
 // Devuelve lista de preguntas (sin respuestas)
 ipcMain.handle("questions:list", () => {
   const arr = loadQuestions();
-  return arr.map(q => ({ question: q.question }));
+  return arr.map((q) => ({ question: q.question }));
 });
 
 // Agrega una nueva pregunta
 ipcMain.handle("questions:add", (event, { question, answer }) => {
-  if (!question || !answer) throw new Error("Pregunta y respuesta son obligatorias");
+  if (!question || !answer)
+    throw new Error("Pregunta y respuesta son obligatorias");
   const arr = loadQuestions();
-  
+
   // Verifica si ya existe
-  const exists = arr.find(q => q.question.toLowerCase().trim() === question.toLowerCase().trim());
+  const exists = arr.find(
+    (q) => q.question.toLowerCase().trim() === question.toLowerCase().trim()
+  );
   if (exists) throw new Error("Esta pregunta ya existe");
-  
-  arr.push({ 
-    question: question.trim(), 
-    answer: hash(answer) // normaliza y hashea
+
+  arr.push({
+    question: question.trim(),
+    answer: hash(answer), // normaliza y hashea
   });
   saveQuestions(arr);
   return true;
@@ -135,19 +137,23 @@ ipcMain.handle("questions:add", (event, { question, answer }) => {
 ipcMain.handle("questions:delete", (event, question) => {
   let arr = loadQuestions();
   const originalLength = arr.length;
-  arr = arr.filter(q => q.question !== question);
-  
+  arr = arr.filter((q) => q.question !== question);
+
   if (arr.length === originalLength) {
     throw new Error("Pregunta no encontrada");
   }
-  
+
   saveQuestions(arr);
   return true;
 });
 
 // ----- verso (como ya lo tenías) -----
-let VERSES = ["JHN.3.16","ROM.8.28","ISA.41.10","PSA.23.1","PHP.4.13"];
-try { VERSES = JSON.parse(fs.readFileSync(path.join(__dirname, "verse.json"), "utf8")); } catch {}
+let VERSES = ["JHN.3.16", "ROM.8.28", "ISA.41.10", "PSA.23.1", "PHP.4.13"];
+try {
+  VERSES = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "verse.json"), "utf8")
+  );
+} catch {}
 const API_KEY = "ad4f0e6ae193b95241077609613ace6c";
 const BIBLE_ID = "592420522e16049f-01";
 
@@ -161,7 +167,10 @@ ipcMain.handle("get-verse", async () => {
 
     let html = data?.data?.content || "";
     html = html.replace(/<sup[^>]*>.*?<\/sup>/gi, "");
-    html = html.replace(/<span[^>]*class="[^"]*v(?:ers)?[^"]*"[^>]*>.*?<\/span>/gi, "");
+    html = html.replace(
+      /<span[^>]*class="[^"]*v(?:ers)?[^"]*"[^>]*>.*?<\/span>/gi,
+      ""
+    );
 
     return { html, reference: data?.data?.reference || "" };
   } catch (err) {
@@ -173,24 +182,32 @@ ipcMain.handle("get-verse", async () => {
 ipcMain.handle("pw:list", (e, { query = "" } = {}) => {
   const q = `%${query.trim()}%`;
   const rows = query
-    ? db.prepare(`
+    ? db
+        .prepare(
+          `
         SELECT p.id, p.service, p.username, p.icon_path, c.name AS category
         FROM passwords p
         LEFT JOIN categories c ON c.id = p.category_id
         WHERE p.service LIKE ? OR p.username LIKE ? OR IFNULL(c.name,'') LIKE ?
         ORDER BY p.service ASC, p.created_at ASC
-      `).all(q, q, q)
-    : db.prepare(`
+      `
+        )
+        .all(q, q, q)
+    : db
+        .prepare(
+          `
         SELECT p.id, p.service, p.username, p.icon_path, c.name AS category
         FROM passwords p
         LEFT JOIN categories c ON c.id = p.category_id
         ORDER BY p.service ASC, p.created_at ASC
-      `).all();
-  
+      `
+        )
+        .all();
+
   // Convertir icon_path (base64 o null) a formato utilizzabile dal frontend
-  return rows.map(row => ({
+  return rows.map((row) => ({
     ...row,
-    icon_path: row.icon_path || null
+    icon_path: row.icon_path || null,
   }));
 });
 
@@ -203,47 +220,62 @@ ipcMain.handle("pw:get", (e, id) => {
 });
 
 // Crear
-ipcMain.handle("pw:add", (e, { service, username, password, category, iconPath }) => {
-  if (!service || !username || !password) throw new Error("Faltan campos obligatorios");
-  if (!iconPath) throw new Error("La icona es obligatoria");
-  
-  // Validazione base64: deve iniziare con data:image/
-  if (!iconPath.startsWith('data:image/')) {
-    throw new Error("La icona deve essere un'immagine valida in formato base64");
-  }
-  
-  const encPayload = JSON.stringify(enc(password));
-  const category_id = getCategoryId(category);
-  const stmt = db.prepare(`
+ipcMain.handle(
+  "pw:add",
+  (e, { service, username, password, category, iconPath }) => {
+    if (!service || !username || !password)
+      throw new Error("Faltan campos obligatorios");
+    if (!iconPath) throw new Error("La icona es obligatoria");
+
+    // Validazione base64: deve iniziare con data:image/
+    if (!iconPath.startsWith("data:image/")) {
+      throw new Error(
+        "La icona deve essere un'immagine valida in formato base64"
+      );
+    }
+
+    const encPayload = JSON.stringify(enc(password));
+    const category_id = getCategoryId(category);
+    const stmt = db.prepare(`
     INSERT INTO passwords(service, username, enc_data, category_id, icon_path)
     VALUES (?, ?, ?, ?, ?)
   `);
-  const info = stmt.run(service, username, encPayload, category_id, iconPath);
-  return info.lastInsertRowid;
-});
+    const info = stmt.run(service, username, encPayload, category_id, iconPath);
+    return info.lastInsertRowid;
+  }
+);
 
 // Actualizar
-ipcMain.handle("pw:update", (e, { id, service, username, password, category, iconPath }) => {
-  const existing = db.prepare(`SELECT * FROM passwords WHERE id = ?`).get(id);
-  if (!existing) throw new Error("No existe el registro");
+ipcMain.handle(
+  "pw:update",
+  (e, { id, service, username, password, category, iconPath }) => {
+    const existing = db.prepare(`SELECT * FROM passwords WHERE id = ?`).get(id);
+    if (!existing) throw new Error("No existe el registro");
 
-  const enc_data = password ? JSON.stringify(enc(password)) : existing.enc_data;
-  const category_id = category ? getCategoryId(category) : existing.category_id;
+    const enc_data = password
+      ? JSON.stringify(enc(password))
+      : existing.enc_data;
+    const category_id = category
+      ? getCategoryId(category)
+      : existing.category_id;
 
-  db.prepare(`
+    db.prepare(
+      `
     UPDATE passwords
     SET service = ?, username = ?, enc_data = ?, category_id = ?, icon_path = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
-  `).run(
-    service ?? existing.service,
-    username ?? existing.username,
-    enc_data,
-    category_id,
-    iconPath ?? existing.icon_path,
-    id
-  );
-  return true;
-});
+  `
+    ).run(
+      service ?? existing.service,
+      username ?? existing.username,
+      enc_data,
+      category_id,
+      iconPath ?? existing.icon_path,
+      id
+    );
+    return true;
+  }
+);
 
 // Eliminar
 ipcMain.handle("pw:delete", (e, id) => {
@@ -251,18 +283,77 @@ ipcMain.handle("pw:delete", (e, id) => {
   return true;
 });
 
+// ----- BACKUP / RESTORE -----
+ipcMain.handle("backup:export", async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: "Selecciona carpeta para guardar el backup",
+    properties: ["openDirectory"],
+  });
+  if (canceled || !filePaths.length) return false;
+
+  const destDir = filePaths[0];
+  try {
+    if (fs.existsSync(VAULT_DB))
+      fs.copyFileSync(VAULT_DB, path.join(destDir, "vault.db"));
+    if (fs.existsSync(KEY_FILE))
+      fs.copyFileSync(KEY_FILE, path.join(destDir, "vault.key"));
+    if (fs.existsSync(QUESTIONS_FILE))
+      fs.copyFileSync(QUESTIONS_FILE, path.join(destDir, "questions.enc"));
+    return true;
+  } catch (err) {
+    console.error("Backup export error:", err);
+    throw err;
+  }
+});
+
+ipcMain.handle("backup:import", async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title:
+      "Selecciona los 3 archivos de backup (vault.db, vault.key, questions.enc)",
+    properties: ["openFile", "multiSelections"],
+    filters: [{ name: "KeyCausa Backup", extensions: ["db", "key", "enc"] }],
+  });
+  if (canceled || !filePaths.length) return false;
+
+  const files = filePaths.map((p) => ({ path: p, name: path.basename(p) }));
+  const dbFile = files.find((f) => f.name === "vault.db");
+  const keyFile = files.find((f) => f.name === "vault.key");
+  const qFile = files.find((f) => f.name === "questions.enc");
+
+  if (!dbFile || !keyFile || !qFile) {
+    throw new Error(
+      "Debes seleccionar los 3 archivos: vault.db, vault.key y questions.enc"
+    );
+  }
+
+  try {
+    fs.copyFileSync(dbFile.path, VAULT_DB);
+    fs.copyFileSync(keyFile.path, KEY_FILE);
+    fs.copyFileSync(qFile.path, QUESTIONS_FILE);
+
+    app.relaunch();
+    app.exit(0);
+    return true;
+  } catch (err) {
+    console.error("Backup import error:", err);
+    throw err;
+  }
+});
+
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1080, height: 720,
+    width: 1080,
+    height: 720,
     useContentSize: true,
     resizable: true,
     minWidth: 800,
     minHeight: 600,
-    backgroundColor: '#0f1115',
-    icon: path.join(__dirname, 'assets', 'logo512.png'),
+    backgroundColor: "#0f1115",
+    icon: path.join(__dirname, "assets", "logo512.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
-      nodeIntegration: false, contextIsolation: true,
+      nodeIntegration: false,
+      contextIsolation: true,
     },
   });
   win.setMenuBarVisibility(false);
@@ -274,7 +365,7 @@ function createWindow() {
     // desarrollo: Vite dev server
     win.loadURL("http://localhost:5173");
   }
-  
+
   win.webContents.on("did-fail-load", (e, code, desc, url) => {
     console.error("did-fail-load", code, desc, url);
   });
@@ -283,16 +374,19 @@ function getVaultKey() {
   if (fs.existsSync(KEY_FILE)) {
     return fs.readFileSync(KEY_FILE);
   }
-  const key = crypto.randomBytes(32);            // 32 bytes = 256 bits
+  const key = crypto.randomBytes(32); // 32 bytes = 256 bits
   fs.writeFileSync(KEY_FILE, key, { mode: 0o600 });
   return key;
 }
 const VAULT_KEY = getVaultKey();
 
 function enc(plain) {
-  const iv = crypto.randomBytes(12);             // GCM usa IV de 12 bytes
+  const iv = crypto.randomBytes(12); // GCM usa IV de 12 bytes
   const cipher = crypto.createCipheriv("aes-256-gcm", VAULT_KEY, iv);
-  const enc1 = Buffer.concat([cipher.update(String(plain), "utf8"), cipher.final()]);
+  const enc1 = Buffer.concat([
+    cipher.update(String(plain), "utf8"),
+    cipher.final(),
+  ]);
   const tag = cipher.getAuthTag();
   return {
     iv: iv.toString("base64"),
